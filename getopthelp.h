@@ -38,26 +38,32 @@ struct goh_state {
 	int autohelp;
 	char *usagehelp; /* First line of help. May be customized. */
 
-	/* These are automatically computed from the above and used for backend
-	 * calls to getopt. */
+	/*
+	 * These are automatically computed from the above and used for backend
+	 * calls to getopt.
+	 */
 	struct option *gnuopts;
 	char *shortopt;
 };
 
 
 
-/* state is a parsing state to initialize
+/*
+ * state is a parsing state to initialize
  * opts is the list of options to recognize
  * cnt is the number of options
  * autohelp indicate whether add automatically options -h and --help that,
- * whenever encountered, call goh_printhelp and exit(EXIT_FAILURE). */
+ * whenever encountered, call goh_printhelp and exit(EXIT_FAILURE).
+ */
 void goh_init(struct goh_state *state, const struct goh_option *opts, size_t cnt,
               int argc, char *const *argv, int autohelp);
 
 void goh_fini(struct goh_state *state);
 
-/* Return the value specified by goh_option.id or -1 at the end.
- * Help is printed when --help or -h or an unknown option is encountered. */
+/*
+ * Return the value specified by goh_option.id or -1 at the end.
+ * Help is printed when --help or -h or an unknown option is encountered.
+ */
 int goh_nextoption(struct goh_state *state);
 
 /* Only format the help text and print it. */
