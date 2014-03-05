@@ -37,6 +37,7 @@ struct goh_state {
 	int argc;
 	int autohelp;
 	char *usagehelp; /* First line of help. May be customized. */
+	int argidx;      /* Filled with the first non-option argument index. */
 
 	/*
 	 * These are automatically computed from the above and used for backend

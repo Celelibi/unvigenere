@@ -162,6 +162,8 @@ int goh_nextoption(struct goh_state *state) {
 		exit(EXIT_SUCCESS);
 	}
 
+	state->argidx = optind;
+
 	/* getopt_long return -1 at the end of the options. */
 	if (val == -1)
 		return -1;
