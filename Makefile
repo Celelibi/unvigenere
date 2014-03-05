@@ -8,7 +8,7 @@ CFLAGS += -Wall -Wextra -Werror -ansi -pedantic -ggdb
 LDFLAGS +=
 
 
-SRC=unvigenere.c misc.c
+SRC=unvigenere.c misc.c getopthelp.c
 OBJS=$(subst .c,.o,$(SRC))
 BIN=unvigenere
 
