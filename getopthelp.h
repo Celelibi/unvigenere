@@ -38,6 +38,7 @@ struct goh_state {
 	int autohelp;
 	char *usagehelp; /* First line of help. May be customized. */
 	int argidx;      /* Filled with the first non-option argument index. */
+	char *argval;    /* Filled with the value of the current option. */
 
 	/*
 	 * These are automatically computed from the above and used for backend
