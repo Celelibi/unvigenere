@@ -10,7 +10,7 @@
 
 
 struct fs_ctx {
-	const char *str;
+	char *str;
 	const char *charset;
 	size_t len;
 };
@@ -18,7 +18,7 @@ struct fs_ctx {
 
 
 /* initialize ctx with the given information */
-void fs_init(struct fs_ctx *ctx, const char *str, const char *charset);
+void fs_init(struct fs_ctx *ctx, char *str, const char *charset);
 
 void fs_fini(struct fs_ctx *ctx);
 

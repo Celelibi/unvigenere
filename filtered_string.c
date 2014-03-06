@@ -9,7 +9,7 @@
  * character lookup is faster.
  */
 
-void fs_init(struct fs_ctx *ctx, const char *str, const char *charset) {
+void fs_init(struct fs_ctx *ctx, char *str, const char *charset) {
 	ctx->str = str;
 	ctx->charset = charset;
 	ctx->len = strlen(str);
