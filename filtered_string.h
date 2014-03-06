@@ -43,7 +43,8 @@ ssize_t fs_next(const struct fs_ctx *ctx, size_t n);
 char fs_char(const struct fs_ctx *ctx, size_t n);
 
 /*
- * Method to call to tell the filtered string a given char has been modified.
+ * Function to call to tell the filtered string a given char has been modified.
+ * n is the physical index of the modified char.
  */
 void fs_update(struct fs_ctx *ctx, size_t n);
 
