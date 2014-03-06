@@ -14,6 +14,12 @@ void system_error(const char *msg);
 
 
 /*
+ * Print the message on stderr and exit
+ */
+__printf_fmt(1,2) void custom_error(const char *format, ...);
+
+
+/*
  * sprintf that allocate the buffer to write in
  * The buffer must be freed with free()
  */
