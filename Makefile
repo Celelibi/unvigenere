@@ -10,7 +10,7 @@ LDFLAGS +=
 
 
 DEPDIR=.deps
-SRC=unvigenere.c misc.c getopthelp.c filtered_string.c
+SRC=unvigenere.c misc.c getopthelp.c filtered_string.c vigenere.c
 OBJS=$(subst .c,.o,$(SRC))
 DEPS=$(patsubst %.c,$(DEPDIR)/%.d,$(SRC))
 BIN=unvigenere
