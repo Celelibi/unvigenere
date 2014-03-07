@@ -42,7 +42,12 @@ mrproper: clean
 	$(RM) $(BIN)
 
 
-NONREMOVEGOALS = $(filter-out clean mrproper,$(MAKECMDGOALS))
+ifeq ($(MAKECMDGOALS),)
+    NONREMOVEGOALS = all
+else
+    NONREMOVEGOALS = $(filter-out clean mrproper,$(MAKECMDGOALS))
+endif
+
 ifneq ($(NONREMOVEGOALS),)
--include $(DEPS)
+    -include $(DEPS)
 endif
