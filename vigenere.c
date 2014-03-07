@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "misc.h"
+#include "array.h"
 #include "filtered_string.h"
 #include "vigenere.h"
 
@@ -19,30 +20,15 @@ void vig_fini(struct vigenere *vig) {
 	if (vig->charsets == NULL)
 		return;
 
-	free(vig->charsets);
-	vig->charsets = NULL;
-	vig->charsets_mem = 0;
-	vig->charsets_size = 0;
+	ARRAY_FREE(vig->charsets);
 }
 
 
 
 void vig_add_charset(struct vigenere *vig, const char *charset) {
 	/* Allocate the array if needed. */
-	if (vig->charsets == NULL) {
-		vig->charsets_mem = 8;
-		vig->charsets = malloc(vig->charsets_mem * sizeof(*vig->charsets));
-		if (vig->charsets == NULL)
-			system_error("malloc");
-	}
-
-	/* Grow the array if needed. */
-	if (vig->charsets_mem >= vig->charsets_size) {
-		vig->charsets_mem *= 2;
-		vig->charsets = realloc(vig->charsets, vig->charsets_mem * sizeof(*vig->charsets));
-		if (vig->charsets == NULL)
-			system_error("realloc");
-	}
+	if (vig->charsets == NULL)
+		ARRAY_ALLOC(vig->charsets, 1);
 
 	if (vig->charsets_size > 0 && strlen(charset) != vig->charset_len)
 		custom_error("vig_add_charset: "
@@ -54,8 +40,7 @@ void vig_add_charset(struct vigenere *vig, const char *charset) {
 	if (vig->charsets_size == 0)
 		vig->charset_len = strlen(charset);
 
-	vig->charsets[vig->charsets_size] = charset;
-	vig->charsets_size++;
+	ARRAY_APPEND(vig->charsets, charset);
 }
 
 

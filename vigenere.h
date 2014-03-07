@@ -15,6 +15,7 @@
 
 #include <sys/types.h>
 
+#include "array.h"
 #include "filtered_string.h"
 
 
@@ -26,9 +27,7 @@
 struct vigenere {
 	struct fs_ctx *str;
 
-	const char **charsets;
-	size_t charsets_size;
-	size_t charsets_mem;
+	ARRAY_DECL(const char *, charsets);
 
 	size_t charset_len;
 };
