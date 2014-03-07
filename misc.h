@@ -14,6 +14,12 @@ void system_error(const char *msg);
 
 
 /*
+ * Print the message on stderr
+ */
+__printf_fmt(1,2) void custom_warn(const char *format, ...);
+
+
+/*
  * Print the message on stderr and exit
  */
 __printf_fmt(1,2) void custom_error(const char *format, ...);

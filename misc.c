@@ -22,6 +22,17 @@ void system_error(const char *msg) {
 
 
 
+void custom_warn(const char *format, ...) {
+	va_list ap;
+	va_start(ap, format);
+	vfprintf(stderr, format, ap);
+	va_end(ap);
+	fprintf(stderr, "\n");
+}
+
+
+
+/* TODO: factor with custom_warn */
 void custom_error(const char *format, ...) {
 	va_list ap;
 	va_start(ap, format);
