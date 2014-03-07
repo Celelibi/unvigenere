@@ -5,6 +5,7 @@
 #include "getopthelp.h"
 #include "filtered_string.h"
 #include "vigenere.h"
+#include "array.h"
 #include "misc.h"
 
 
@@ -64,11 +65,10 @@ static void simple_action(struct fs_ctx *s, const char *key, enum action act) {
  */
 static char *read_file(const char *filename) {
 	FILE *fp = stdin;
-	char *buffer;
-	size_t buffer_size = 0;
-	size_t buffer_mem = 8;
+	ARRAY_DECL(char, buffer);
 	size_t nr;
 	int err;
+	char nulchar = '\0';
 
 	if (strcmp(filename, "-") != 0) {
 		fp = fopen(filename, "r");
@@ -76,22 +76,19 @@ static char *read_file(const char *filename) {
 			system_error(filename);
 	}
 
-	buffer = malloc(buffer_mem * sizeof(*buffer));
-	if (buffer == NULL)
-		system_error("malloc");
+	ARRAY_ALLOC(buffer, 8);
 
 	do {
 		/* Grow the buffer if needed. */
-		if (buffer_size >= buffer_mem) {
-			buffer_mem *= 2;
-			buffer = realloc(buffer, buffer_mem * sizeof(*buffer));
-			if (buffer == NULL)
-				system_error("realloc");
-		}
+		if (buffer_size >= buffer_mem)
+			ARRAY_GROW(buffer);
 
 		nr = fread(buffer + buffer_size, 1, buffer_mem - buffer_size, fp);
 		buffer_size += nr;
 	} while (nr > 0);
+
+	/* TODO: It sucks a bit to need a variable nulchar for this. */
+	ARRAY_APPEND(buffer, nulchar);
 
 	if (ferror(fp))
 		system_error("fread");
