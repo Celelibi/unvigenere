@@ -137,15 +137,16 @@ void vig_encrypt(struct vigenere *vig, const char *key) {
 
 		idx = ki;
 		do {
-			size_t pidx;
+			ssize_t pidx;
 
 			pidx = fs_pidx(vig->str, idx);
-			c = vig->str->str[pidx];
-			if (c == '\0')
+			if (pidx == -1)
 				break;
 
+			c = vig->str->str[pidx];
 			c = shift_char(vig, c, shift);
 			vig->str->str[pidx] = c;
+
 			idx += klen;
 		} while (c != '\0');
 	}
@@ -168,15 +169,16 @@ void vig_decrypt(struct vigenere *vig, const char *key) {
 
 		idx = ki;
 		do {
-			size_t pidx;
+			ssize_t pidx;
 
 			pidx = fs_pidx(vig->str, idx);
-			c = vig->str->str[pidx];
-			if (c == '\0')
+			if (pidx == -1)
 				break;
 
+			c = vig->str->str[pidx];
 			c = unshift_char(vig, c, shift);
 			vig->str->str[pidx] = c;
+
 			idx += klen;
 		} while (c != '\0');
 	}
