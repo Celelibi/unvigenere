@@ -8,7 +8,7 @@
 #define ARRAY_LENGTH(a) (sizeof(a) / sizeof(*a))
 
 /*
- * Calls perror(msg) and exit
+ * Calls perror(msg) and abort()
  */
 void system_error(const char *msg);
 
@@ -20,7 +20,7 @@ __printf_fmt(1,2) void custom_warn(const char *format, ...);
 
 
 /*
- * Print the message on stderr and exit
+ * Print the message on stderr and abort()
  */
 __printf_fmt(1,2) void custom_error(const char *format, ...);
 

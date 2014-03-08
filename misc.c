@@ -17,7 +17,7 @@
 
 void system_error(const char *msg) {
 	perror(msg);
-	exit(EXIT_FAILURE);
+	abort();
 }
 
 
@@ -39,7 +39,7 @@ void custom_error(const char *format, ...) {
 	vfprintf(stderr, format, ap);
 	va_end(ap);
 	fprintf(stderr, "\n");
-	exit(EXIT_FAILURE);
+	abort();
 }
 
 
