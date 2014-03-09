@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "getopthelp.h"
+#include "cracker.h"
 #include "filtered_string.h"
 #include "vigenere.h"
 #include "array.h"
@@ -27,15 +28,34 @@ static const struct goh_option opt_desc[] = {
 	{"decrypt", 'd', GOH_ARG_REFUSED, 'd',
 		"Decrypt the data with the given key."},
 	{"key", 'k', GOH_ARG_REQUIRED, 'k',
-		"Key used for encryption / decryption."}
+		"Key used for encryption / decryption."},
+	{"key-length", 'l', GOH_ARG_REQUIRED, 'l',
+		"Length of the key to crack."}
 };
 
 
 
 
-static void crack(struct fs_ctx *s) {
-	(void)s;
-	printf("Cracking is not yet implemented.\n");
+static void crack(struct fs_ctx *s, size_t len) {
+	struct cracker ck;
+	struct vigenere vig;
+
+	if (len == 0)
+		custom_error("Cracking the key length is not implemented yet.");
+
+	ck_init(&ck, s, VIG_CHARSET_UPPER);
+	ck_set_length(&ck, len);
+	ck_crack(&ck);
+
+	printf("Found key: %s\n", ck.key);
+
+	vig_init(&vig, s);
+	vig_add_charset(&vig, VIG_CHARSET_UPPER);
+	vig_add_charset(&vig, VIG_CHARSET_LOWER);
+	vig_decrypt(&vig, ck.key);
+	vig_fini(&vig);
+
+	ck_fini(&ck);
 }
 
 
@@ -144,6 +164,7 @@ int main(int argc, char **argv) {
 	struct fs_ctx s;
 	enum action action = ACTION_CRACK;
 	char *key = NULL;
+	size_t klen = 0;
 	const char *filenamein = "-";
 	const char *filenameout = "-";
 	char *text = NULL;
@@ -175,6 +196,10 @@ int main(int argc, char **argv) {
 			key = st.argval;
 			break;
 
+		case 'l':
+			klen = atoi(st.argval);
+			break;
+
 		default:
 			custom_error("Unrecognized option (shouldn't happen)");
 			break;
@@ -194,12 +219,20 @@ int main(int argc, char **argv) {
 	if (action == ACTION_CRACK && key != NULL)
 		custom_error("--key need either --encrypt or --decrypt");
 
+	if (klen > 0 && key != NULL)
+		custom_warn("Unnecessary key length option with an actual key");
+
+	if (klen > 0 && key != NULL && klen != strlen(key))
+		custom_error("Key length option doesn't match "
+		             "the length of the key.");
+
+
 	/* Start to do the job. */
 	text = read_file(filenamein);
 	fs_init(&s, text, FS_CHARSET_ALPHA);
 
 	if (action == ACTION_CRACK)
-		crack(&s);
+		crack(&s, klen);
 	else
 		simple_action(&s, key, action);
 
