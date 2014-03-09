@@ -23,14 +23,14 @@ all: $(BIN)
 $(BIN): $(OBJS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJS)
 
-%.o: %.c
+%.o: %.c Makefile
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
 $(sort $(dir $(DEPS))):
 	mkdir -p $@
 
 .SECONDEXPANSION:
-$(DEPDIR)/%.d: %.c | $$(dir $$@)
+$(DEPDIR)/%.d: %.c Makefile | $$(dir $$@)
 	$(CC) -M $(CPPFLAGS) $< | sed 's,\(.*\)\.o:,\1.o $@:,g' > $@
 
 .PHONY: clean mrproper
