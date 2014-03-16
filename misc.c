@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 
 #include "misc.h"
@@ -83,4 +84,19 @@ int avsprintf(char **str, const char *format, va_list ap) {
 
 	size = vsprintf(*str, format, aq);
 	return size;
+}
+
+
+
+char *strdup(const char *str) {
+	size_t size;
+	char *ret;
+
+	size = strlen(str) + 1;
+	ret = malloc(size * sizeof(*ret));
+	if (ret == NULL)
+		system_error("malloc");
+
+	strcpy(ret, str);
+	return ret;
 }

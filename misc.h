@@ -37,4 +37,10 @@ __printf_fmt(2,3) int asprintf(char **str, const char *format, ...);
  */
 int avsprintf(char **str, const char *format, va_list ap);
 
+
+/*
+ * Duplicate a string into a new buffer allocated by malloc.
+ */
+char *strdup(const char *str);
+
 #endif
