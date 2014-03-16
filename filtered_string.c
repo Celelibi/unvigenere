@@ -1,6 +1,8 @@
-#include <sys/types.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
+#include "misc.h"
 #include "filtered_string.h"
 
 
@@ -10,16 +12,32 @@
  */
 
 void fs_init(struct fs_ctx *ctx, char *str, const char *charset) {
+	size_t nlen = 0;
+	ssize_t i;
+
+	memset(ctx, 0, sizeof(*ctx));
 	ctx->str = str;
 	ctx->charset = charset;
 	ctx->len = strlen(str);
+
+	for (i = fs_pidx(ctx, 0); i >= 0; i = fs_next(ctx, i))
+		nlen++;
+
+	ctx->norm = malloc((nlen + 1) * sizeof(*ctx->norm));
+	if (ctx->norm == NULL)
+		system_error("malloc");
+
+	ctx->norm[nlen] = '\0';
+
+	/* Will reconstruct the content of ctx->norm based on ctx->str. */
+	fs_update_all(ctx);
 }
 
 
 
 void fs_fini(struct fs_ctx *ctx) {
-	/* Nothing to do for now. */
-	(void)ctx;
+	free(ctx->norm);
+	memset(ctx, 0, sizeof(*ctx));
 }
 
 
@@ -68,15 +86,30 @@ char fs_char(const struct fs_ctx *ctx, size_t n) {
 
 
 
+void fs_replace(struct fs_ctx *ctx, const char *norm) {
+	ssize_t i;
+
+	if (strlen(norm) != strlen(ctx->norm))
+		custom_error("fs_replace called with unapplyable new string");
+
+	strcpy(ctx->norm, norm);
+
+	for (i = fs_pidx(ctx, 0); i >= 0; i = fs_next(ctx, i))
+		ctx->str[i] = *norm++;
+}
+
+
+
 void fs_update(struct fs_ctx *ctx, size_t n) {
-	/* Nothing to do for a list implementation. */
-	(void)ctx;
-	(void)n;
+	ctx->norm[fs_pidx(ctx, n)] = ctx->str[n];
 }
 
 
 
 void fs_update_all(struct fs_ctx *ctx) {
-	/* Nothing to do for a list implementation. */
-	(void)ctx;
+	ssize_t i;
+	size_t j = 0;
+
+	for (i = fs_pidx(ctx, 0); i >= 0; i = fs_next(ctx, i))
+		ctx->norm[j++] = ctx->str[i];
 }

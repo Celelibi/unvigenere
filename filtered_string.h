@@ -13,6 +13,7 @@ struct fs_ctx {
 	char *str;
 	const char *charset;
 	size_t len;
+	char *norm;
 };
 
 
@@ -41,6 +42,11 @@ ssize_t fs_next(const struct fs_ctx *ctx, size_t n);
  * It returns nul char '\0' if n is not in the string.
  */
 char fs_char(const struct fs_ctx *ctx, size_t n);
+
+/*
+ * Remplace all the non-filtered chars in the string with these ones.
+ */
+void fs_replace(struct fs_ctx *ctx, const char *norm);
 
 /*
  * Function to call to tell the filtered string a given char has been modified.
