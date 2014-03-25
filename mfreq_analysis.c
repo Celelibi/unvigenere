@@ -58,12 +58,16 @@ static void frequency_offset(struct mfreq *mfa, size_t off) {
 	size_t count[26];
 	size_t i;
 	size_t total;
+	const char *norm;
+	size_t nlen;
 	char c;
 
 	memset(&count, 0, sizeof(count));
+	norm = mfa->str->norm;
+	nlen = strlen(norm);
 
-	for (i = off; (c = fs_char(mfa->str, i)) != '\0'; i += mfa->klen) {
-		c = toupper(c);
+	for (i = off; i < nlen; i += mfa->klen) {
+		c = toupper(norm[i]);
 
 		if (c >= 'A' && c <= 'Z')
 			count[c - 'A']++;
