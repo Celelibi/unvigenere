@@ -91,80 +91,57 @@ static char unshift_char(struct vigenere *vig, char c, int s) {
 
 
 
-static size_t key_length(struct vigenere *vig, const char *key) {
-	size_t len = 0;
-
-	while (*key != '\0') {
-		if (char_num(vig, *key) != -1)
-			len++;
-
-		key++;
-	}
-
-	return len;
-}
-
-
-
 /* TODO: refactor vig_encrypt and vig_decrypt */
 void vig_encrypt(struct vigenere *vig, const char *key) {
-	size_t klen, ki;
-	char c;
+	struct fs_ctx fskey;
+	size_t klen, i;
+	char *ntext;
 
-	klen = key_length(vig, key);
+	/* I know filtered_string won't modify key. */
+	fs_init(&fskey, (char *)key, vig->str->charset);
+	key = fskey.norm;
+	klen = strlen(key);
 
-	for (ki = 0; key[ki] != '\0'; ki++) {
-		size_t idx;
-		int shift = char_num(vig, key[ki]);
+	/* Duplicate vig->str->norm so that the struct vig->str isn't
+	 * transiently inconsistent. */
+	ntext = strdup(vig->str->norm);
 
-		if (shift == -1)
-			continue;
-
-		idx = ki;
-		do {
-			ssize_t pidx;
-
-			pidx = fs_pidx(vig->str, idx);
-			if (pidx == -1)
-				break;
-
-			c = vig->str->str[pidx];
-			c = shift_char(vig, c, shift);
-			vig->str->str[pidx] = c;
-
-			idx += klen;
-		} while (c != '\0');
+	i = 0;
+	while (ntext[i] != '\0') {
+		int shift = char_num(vig, key[i % klen]);
+		ntext[i] = shift_char(vig, ntext[i], shift);
+		i++;
 	}
+
+	fs_replace(vig->str, ntext);
+	free(ntext);
+	fs_fini(&fskey);
 }
 
 
 
 void vig_decrypt(struct vigenere *vig, const char *key) {
-	size_t klen, ki;
-	char c;
+	struct fs_ctx fskey;
+	size_t klen, i;
+	char *ntext;
 
-	klen = key_length(vig, key);
+	/* I know filtered_string won't modify key. */
+	fs_init(&fskey, (char *)key, vig->str->charset);
+	key = fskey.norm;
+	klen = strlen(key);
 
-	for (ki = 0; key[ki] != '\0'; ki++) {
-		size_t idx;
-		int shift = char_num(vig, key[ki]);
+	/* Duplicate vig->str->norm so that the struct vig->str isn't
+	 * transiently inconsistent. */
+	ntext = strdup(vig->str->norm);
 
-		if (shift == -1)
-			continue;
-
-		idx = ki;
-		do {
-			ssize_t pidx;
-
-			pidx = fs_pidx(vig->str, idx);
-			if (pidx == -1)
-				break;
-
-			c = vig->str->str[pidx];
-			c = unshift_char(vig, c, shift);
-			vig->str->str[pidx] = c;
-
-			idx += klen;
-		} while (c != '\0');
+	i = 0;
+	while (ntext[i] != '\0') {
+		int shift = char_num(vig, key[i % klen]);
+		ntext[i] = unshift_char(vig, ntext[i], shift);
+		i++;
 	}
+
+	fs_replace(vig->str, ntext);
+	free(ntext);
+	fs_fini(&fskey);
 }
