@@ -52,37 +52,6 @@ void mfa_fini(struct mfreq *mfa) {
 
 
 
-/*
- * Return an uppercase letter.
- * FIXME: This function is not foreign language friendly and not UTF-8 compliant
- * at all. */
-static char sanitize_char(char c) {
-	c = toupper(c);
-
-	/* Not charset friendly at all. */
-	if (strchr("ÁÀÂÄÃ", c) != NULL)
-		return 'A';
-
-	if (strchr("ÉÈÊËẼ", c) != NULL)
-		return 'E';
-
-	if (strchr("ÍÌîï", c) != NULL)
-		return 'I';
-
-	if (strchr("ÓÒÔÖÕ", c) != NULL)
-		return 'O';
-
-	if (strchr("ÚÙÛÜ", c) != NULL)
-		return 'U';
-
-	if (strchr("ÝŶŸ", c) != NULL)
-		return 'Y';
-
-	return c;
-}
-
-
-
 /* Compute the frequency table for a given offset. */
 static void frequency_offset(struct mfreq *mfa, size_t off) {
 	/* Use size_t type to avoid float cancellation when doing "+1". */
@@ -94,7 +63,7 @@ static void frequency_offset(struct mfreq *mfa, size_t off) {
 	memset(&count, 0, sizeof(count));
 
 	for (i = off; (c = fs_char(mfa->str, i)) != '\0'; i += mfa->klen) {
-		c = sanitize_char(c);
+		c = toupper(c);
 
 		if (c >= 'A' && c <= 'Z')
 			count[c - 'A']++;
