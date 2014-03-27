@@ -18,6 +18,7 @@ void ck_init(struct cracker *state, struct fs_ctx *str, const char *keycharset) 
 
 	state->keycharset = keycharset;
 	state->keycharset_len = strlen(state->keycharset);
+	state->ka_minlen = 3;
 }
 
 
@@ -66,7 +67,7 @@ void ck_length(struct cracker *state) {
 	if (state->ka_done)
 		ka_fini(&state->ka);
 
-	ka_init(&state->ka, state->str, 3);
+	ka_init(&state->ka, state->str, state->ka_minlen);
 	ka_analyze(&state->ka);
 
 	bestlength = 2;

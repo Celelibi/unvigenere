@@ -33,8 +33,12 @@ struct cracker {
 	size_t klen;
 	char *key;
 
+	/* Argument to be given to ka_init */
+	size_t ka_minlen;
+
 	struct kasiski ka;
 	int ka_done;
+
 	struct mfreq mfa;
 	int mfa_done;
 };
