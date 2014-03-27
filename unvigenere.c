@@ -40,11 +40,12 @@ static void crack(struct fs_ctx *s, size_t len) {
 	struct cracker ck;
 	struct vigenere vig;
 
-	if (len == 0)
-		custom_error("Cracking the key length is not implemented yet.");
 
 	ck_init(&ck, s, VIG_CHARSET_UPPER);
-	ck_set_length(&ck, len);
+
+	if (len != 0)
+		ck_set_length(&ck, len);
+
 	ck_crack(&ck);
 
 	printf("Found key: %s\n", ck.key);
