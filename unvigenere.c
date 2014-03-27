@@ -32,13 +32,17 @@ static const struct goh_option opt_desc[] = {
 	{"key-length", 'l', GOH_ARG_REQUIRED, 'l',
 		"Length of the key to crack."},
 	{"kasiski-min-length", 'm', GOH_ARG_REQUIRED, 'm',
-		"Minimum length of a substring match for the kasiski method."}
+		"Minimum length of a substring match for the kasiski method."},
+	{"show-kasiski-table", 's', GOH_ARG_REFUSED, 's',
+		"Show the score table for the kasiski method."}
 };
 
 
 
 
-static void crack(struct fs_ctx *s, size_t len, size_t ka_minlen) {
+static void crack(struct fs_ctx *s, size_t len, size_t ka_minlen,
+                  int ka_show_table) {
+
 	struct cracker ck;
 	struct vigenere vig;
 
@@ -52,6 +56,18 @@ static void crack(struct fs_ctx *s, size_t len, size_t ka_minlen) {
 		ck.ka_minlen = ka_minlen;
 
 	ck_crack(&ck);
+
+	if (ka_show_table) {
+		size_t i;
+		size_t nlen;
+
+		printf("Kasiski score table:\n");
+
+		nlen = strlen(s->norm);
+		for (i = 0; i < nlen; i++)
+			printf("%lu: %lu\n", i, ck.ka.score[i]);
+	}
+
 
 	printf("Found key: %s\n", ck.key);
 
@@ -175,6 +191,7 @@ int main(int argc, char **argv) {
 	const char *filenameout = "-";
 	char *text = NULL;
 	size_t ka_minlen = 0;
+	int ka_show_table = 0;
 
 
 	/* Parse the options. */
@@ -211,6 +228,10 @@ int main(int argc, char **argv) {
 			ka_minlen = atoi(st.argval);
 			break;
 
+		case 's':
+			ka_show_table = 1;
+			break;
+
 		default:
 			custom_error("Unrecognized option (shouldn't happen)");
 			break;
@@ -243,7 +264,7 @@ int main(int argc, char **argv) {
 	fs_init(&s, text, FS_CHARSET_ALPHA);
 
 	if (action == ACTION_CRACK)
-		crack(&s, klen, ka_minlen);
+		crack(&s, klen, ka_minlen, ka_show_table);
 	else
 		simple_action(&s, key, action);
 
