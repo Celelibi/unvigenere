@@ -119,10 +119,37 @@ static char *build_shortopt(const struct goh_option *opts, size_t cnt,
 
 
 
+static void options_check(const struct goh_option *opts, size_t cnt) {
+	size_t i, j;
+
+	for (i = 0; i < cnt; i++) {
+		const struct goh_option *a = &opts[i];
+		for (j = i + 1; j < cnt; j++) {
+			const struct goh_option *b = &opts[j];
+
+			if (a->abbr != '\0' && a->abbr == b->abbr)
+				custom_error("getopthelp: Short option %c "
+				             "defined twice", a->abbr);
+
+			if (a->id == b->id)
+				custom_error("getopthelp: Option id %d defined "
+				             "twice", a->id);
+
+			if (strcmp(a->name, b->name) == 0)
+				custom_error("getopthelp: Long option name `%s'"
+				             " defined twice", a->name);
+		}
+	}
+}
+
+
+
 void goh_init(struct goh_state *state, const struct goh_option *opts, size_t cnt,
               int argc, char *const *argv, int autohelp) {
 
 	memset(state, 0, sizeof(*state));
+
+	options_check(opts, cnt);
 
 	state->opts = opts;
 	state->optcnt = cnt;
