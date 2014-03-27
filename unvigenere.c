@@ -254,7 +254,7 @@ int main(int argc, char **argv) {
 	goh_fini(&st);
 
 	if (action != ACTION_CRACK && key == NULL)
-		custom_error("Encryption and decryption take a --key.");
+		custom_error("Encryption and decryption take a --key");
 
 	if (action == ACTION_CRACK && key != NULL)
 		custom_error("--key need either --encrypt or --decrypt");
@@ -264,7 +264,23 @@ int main(int argc, char **argv) {
 
 	if (klen > 0 && key != NULL && klen != strlen(key))
 		custom_error("Key length option doesn't match "
-		             "the length of the key.");
+		             "the length of the key");
+
+	if (ka_minlen > 0 && action != ACTION_CRACK)
+		custom_error("--kasiski-min-length can only be used in "
+		             "cracking mode");
+
+	if (ka_minlen > 0 && klen > 0)
+		custom_warn("Useless option --kasiski-min-length when the key "
+		            "length is given");
+
+	if (ka_show_table != 0 && action != ACTION_CRACK)
+		custom_error("--show-kasiski-table can only be used in "
+		             "cracking mode");
+
+	if (ka_show_table != 0 && klen > 0)
+		custom_warn("Option --show-kasiski-table ignored when a key "
+		            "length is given");
 
 
 	/* Start to do the job. */
