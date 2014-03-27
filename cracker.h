@@ -5,12 +5,14 @@
  * This module coordinate all the analysis modules to crack a Vigenère cipher.
  * Namely, it curently uses:
  * - Multi-frequency-analysis
+ * - Kasiski analysis
  *
  * And will use:
  * - Friedman test
- * - Kasiski analysis
  * - Index of coincidence analysis
  * - Wordlist attack
+ * - Autocorrelation (with or without a FFT)
+ * - Fourier Transform variation for text
  *
  * This module's API (will) also give access various statistics about the text
  * being cracked.
@@ -20,6 +22,7 @@
 
 #include "filtered_string.h"
 #include "mfreq_analysis.h"
+#include "kasiski.h"
 
 
 
@@ -30,6 +33,8 @@ struct cracker {
 	size_t klen;
 	char *key;
 
+	struct kasiski ka;
+	int ka_done;
 	struct mfreq mfa;
 	int mfa_done;
 };

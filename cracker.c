@@ -6,6 +6,7 @@
 #include "misc.h"
 #include "filtered_string.h"
 #include "mfreq_analysis.h"
+#include "kasiski.h"
 #include "cracker.h"
 
 
@@ -25,6 +26,9 @@ void ck_init(struct cracker *state, struct fs_ctx *str, const char *keycharset) 
 void ck_fini(struct cracker *state) {
 	if (state->key != NULL)
 		free(state->key);
+
+	if (state->ka_done)
+		ka_fini(&state->ka);
 
 	if (state->mfa_done)
 		mfa_fini(&state->mfa);
@@ -50,8 +54,34 @@ void ck_set_length(struct cracker *state, size_t len) {
 
 
 void ck_length(struct cracker *state) {
-	(void)state;
-	custom_error("Key length cracking is not implemented yet.");
+	size_t i, nlen;
+	size_t bestlength, bestscore;
+
+	nlen = strlen(state->str->norm);
+	if (nlen < 3)
+		custom_error("Can't break key length of a text with only %lu "
+		             "signficant characters", nlen);
+
+	/* Restart the kasiski analysis if specifically asked to. */
+	if (state->ka_done)
+		ka_fini(&state->ka);
+
+	ka_init(&state->ka, state->str, 3);
+	ka_analyze(&state->ka);
+
+	bestlength = 2;
+	bestscore = state->ka.score[bestlength];
+
+	for (i = 3; i < nlen; i++) {
+		size_t score = state->ka.score[i];
+		if (score > bestscore) {
+			bestscore = score;
+			bestlength = i;
+		}
+	}
+
+	ck_set_length(state, bestlength);
+	state->ka_done = 1;
 }
 
 
