@@ -30,13 +30,15 @@ static const struct goh_option opt_desc[] = {
 	{"key", 'k', GOH_ARG_REQUIRED, 'k',
 		"Key used for encryption / decryption."},
 	{"key-length", 'l', GOH_ARG_REQUIRED, 'l',
-		"Length of the key to crack."}
+		"Length of the key to crack."},
+	{"kasiski-min-length", 'm', GOH_ARG_REQUIRED, 'm',
+		"Minimum length of a substring match for the kasiski method."}
 };
 
 
 
 
-static void crack(struct fs_ctx *s, size_t len) {
+static void crack(struct fs_ctx *s, size_t len, size_t ka_minlen) {
 	struct cracker ck;
 	struct vigenere vig;
 
@@ -45,6 +47,9 @@ static void crack(struct fs_ctx *s, size_t len) {
 
 	if (len != 0)
 		ck_set_length(&ck, len);
+
+	if (ka_minlen != 0)
+		ck.ka_minlen = ka_minlen;
 
 	ck_crack(&ck);
 
@@ -169,6 +174,7 @@ int main(int argc, char **argv) {
 	const char *filenamein = "-";
 	const char *filenameout = "-";
 	char *text = NULL;
+	size_t ka_minlen = 0;
 
 
 	/* Parse the options. */
@@ -199,6 +205,10 @@ int main(int argc, char **argv) {
 
 		case 'l':
 			klen = atoi(st.argval);
+			break;
+
+		case 'm':
+			ka_minlen = atoi(st.argval);
 			break;
 
 		default:
@@ -233,7 +243,7 @@ int main(int argc, char **argv) {
 	fs_init(&s, text, FS_CHARSET_ALPHA);
 
 	if (action == ACTION_CRACK)
-		crack(&s, klen);
+		crack(&s, klen, ka_minlen);
 	else
 		simple_action(&s, key, action);
 
