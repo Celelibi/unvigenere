@@ -18,6 +18,14 @@ enum action {
 };
 
 
+/* Sequential numbers for option id. */
+enum option_id {
+	OPT_KASISKI_MIN_LENGTH = 256,
+	OPT_SHOW_KASISKI_TABLE,
+	OPT_LAST
+};
+
+
 static const struct goh_option opt_desc[] = {
 	{"input", 'i', GOH_ARG_REQUIRED, 'i',
 		"Input file. May be - for stdin. Default to stdin."},
@@ -31,9 +39,9 @@ static const struct goh_option opt_desc[] = {
 		"Key used for encryption / decryption."},
 	{"key-length", 'l', GOH_ARG_REQUIRED, 'l',
 		"Length of the key to crack."},
-	{"kasiski-min-length", 'm', GOH_ARG_REQUIRED, 'm',
+	{"kasiski-min-length", 'm', GOH_ARG_REQUIRED, OPT_KASISKI_MIN_LENGTH,
 		"Minimum length of a substring match for the kasiski method."},
-	{"show-kasiski-table", 's', GOH_ARG_REFUSED, 's',
+	{"show-kasiski-table", '\0', GOH_ARG_REFUSED, OPT_SHOW_KASISKI_TABLE,
 		"Show the score table for the kasiski method."}
 };
 
@@ -224,11 +232,11 @@ int main(int argc, char **argv) {
 			klen = atoi(st.argval);
 			break;
 
-		case 'm':
+		case OPT_KASISKI_MIN_LENGTH:
 			ka_minlen = atoi(st.argval);
 			break;
 
-		case 's':
+		case OPT_SHOW_KASISKI_TABLE:
 			ka_show_table = 1;
 			break;
 
