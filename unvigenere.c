@@ -22,6 +22,7 @@ enum action {
 enum option_id {
 	OPT_KASISKI_MIN_LENGTH = 256,
 	OPT_SHOW_KASISKI_TABLE,
+	OPT_SHOW_KASISKI_LENGTH,
 	OPT_LAST
 };
 
@@ -42,7 +43,9 @@ static const struct goh_option opt_desc[] = {
 	{"kasiski-min-length", 'm', GOH_ARG_REQUIRED, OPT_KASISKI_MIN_LENGTH,
 		"Minimum length of a substring match for the kasiski method."},
 	{"show-kasiski-table", '\0', GOH_ARG_REFUSED, OPT_SHOW_KASISKI_TABLE,
-		"Show the score table for the kasiski method."}
+		"Show the score table for the kasiski method."},
+	{"show-kasiski-length", '\0', GOH_ARG_REFUSED, OPT_SHOW_KASISKI_LENGTH,
+		"Show the probable key length with respect to kasiski method."}
 };
 
 
@@ -62,6 +65,64 @@ static void crack_ka_show_table(const struct cracker *ck) {
 
 
 
+
+static const size_t *sort_score_helper_argument;
+
+
+
+static int sort_score_helper(const void *arg1, const void *arg2) {
+	const size_t *a = arg1;
+	const size_t *b = arg2;
+	const size_t *score = sort_score_helper_argument;
+
+	return score[*b] - score[*a];
+}
+
+
+
+static void crack_ka_show_length(const struct cracker *ck) {
+	size_t *ka_len;
+	size_t i;
+	size_t nlen;
+
+	nlen = strlen(ck->str->norm);
+
+	/*
+	 * Build a table of index into ck->ka.score. They happen to be probable
+	 * key length. The probability for the key to be length l is
+	 * ck->ka.score[l].
+	 */
+
+	ka_len = malloc(nlen * sizeof(ka_len));
+	if (ka_len == NULL)
+		system_error("malloc");
+
+	for (i = 0; i < nlen; i++)
+		ka_len[i] = i;
+
+	/* Sort that table according to the score. */
+	sort_score_helper_argument = ck->ka.score;
+	qsort(ka_len, nlen, sizeof(*ka_len), sort_score_helper);
+
+	printf("Probable key length with respect to Kasiski attack:");
+
+	/* Start at 1 because we know the length with the best score is length
+	 * 1, which is not interesting. */
+	for (i = 1; i < nlen; i++) {
+		printf(" %lu", ka_len[i]);
+
+		/* Only keep the length for which the score is not too far from
+		 * the best choice. */
+		if (ck->ka.score[ka_len[i]] < ck->ka.score[ka_len[1]] / 3)
+			break;
+	}
+	printf("\n");
+
+	free(ka_len);
+}
+
+
+
 /* There are too much arguments for the crack function and more are coming.
  * Let's just put them all in a struct. */
 struct crack_args {
@@ -69,6 +130,7 @@ struct crack_args {
 	size_t klen;
 	size_t ka_minlen;
 	int ka_show_table;
+	int ka_show_length;
 };
 
 
@@ -90,6 +152,10 @@ static void crack(const struct crack_args *a) {
 
 	if (a->ka_show_table)
 		crack_ka_show_table(&ck);
+
+
+	if (a->ka_show_length)
+		crack_ka_show_length(&ck);
 
 
 	printf("Found key: %s\n", ck.key);
@@ -254,6 +320,10 @@ int main(int argc, char **argv) {
 			cka.ka_show_table = 1;
 			break;
 
+		case OPT_SHOW_KASISKI_LENGTH:
+			cka.ka_show_length = 1;
+			break;
+
 		default:
 			custom_error("Unrecognized option (shouldn't happen)");
 			break;
@@ -295,6 +365,14 @@ int main(int argc, char **argv) {
 
 	if (cka.ka_show_table != 0 && cka.klen > 0)
 		custom_warn("Option --show-kasiski-table ignored when a key "
+		            "length is given");
+
+	if (cka.ka_show_length != 0 && action != ACTION_CRACK)
+		custom_error("--show-kasiski-length can only be used in "
+		             "cracking mode");
+
+	if (cka.ka_show_length != 0 && cka.klen > 0)
+		custom_warn("Option --show-kasiski-length ignored when a key "
 		            "length is given");
 
 
