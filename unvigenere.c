@@ -48,30 +48,39 @@ static const struct goh_option opt_desc[] = {
 
 
 
-static void crack(struct fs_ctx *s, size_t len, size_t ka_minlen,
-                  int ka_show_table) {
+/* There are too much arguments for the crack function and more are coming.
+ * Let's just put them all in a struct. */
+struct crack_args {
+	struct fs_ctx *str;
+	size_t klen;
+	size_t ka_minlen;
+	int ka_show_table;
+};
 
+
+
+static void crack(const struct crack_args *a) {
 	struct cracker ck;
 	struct vigenere vig;
 
 
-	ck_init(&ck, s, VIG_CHARSET_UPPER);
+	ck_init(&ck, a->str, VIG_CHARSET_UPPER);
 
-	if (len != 0)
-		ck_set_length(&ck, len);
+	if (a->klen != 0)
+		ck_set_length(&ck, a->klen);
 
-	if (ka_minlen != 0)
-		ck.ka_minlen = ka_minlen;
+	if (a->ka_minlen != 0)
+		ck.ka_minlen = a->ka_minlen;
 
 	ck_crack(&ck);
 
-	if (ka_show_table) {
+	if (a->ka_show_table) {
 		size_t i;
 		size_t nlen;
 
 		printf("Kasiski score table:\n");
 
-		nlen = strlen(s->norm);
+		nlen = strlen(a->str->norm);
 		for (i = 0; i < nlen; i++)
 			printf("%lu: %lu\n", i, ck.ka.score[i]);
 	}
@@ -79,7 +88,7 @@ static void crack(struct fs_ctx *s, size_t len, size_t ka_minlen,
 
 	printf("Found key: %s\n", ck.key);
 
-	vig_init(&vig, s);
+	vig_init(&vig, a->str);
 	vig_add_charset(&vig, VIG_CHARSET_UPPER);
 	vig_add_charset(&vig, VIG_CHARSET_LOWER);
 	vig_decrypt(&vig, ck.key);
@@ -194,13 +203,12 @@ int main(int argc, char **argv) {
 	struct fs_ctx s;
 	enum action action = ACTION_CRACK;
 	char *key = NULL;
-	size_t klen = 0;
 	const char *filenamein = "-";
 	const char *filenameout = "-";
 	char *text = NULL;
-	size_t ka_minlen = 0;
-	int ka_show_table = 0;
+	struct crack_args cka;
 
+	memset(&cka, 0, sizeof(cka));
 
 	/* Parse the options. */
 	goh_init(&st, opt_desc, ARRAY_LENGTH(opt_desc), argc, argv, 1);
@@ -229,15 +237,15 @@ int main(int argc, char **argv) {
 			break;
 
 		case 'l':
-			klen = atoi(st.argval);
+			cka.klen = atoi(st.argval);
 			break;
 
 		case OPT_KASISKI_MIN_LENGTH:
-			ka_minlen = atoi(st.argval);
+			cka.ka_minlen = atoi(st.argval);
 			break;
 
 		case OPT_SHOW_KASISKI_TABLE:
-			ka_show_table = 1;
+			cka.ka_show_table = 1;
 			break;
 
 		default:
@@ -247,38 +255,39 @@ int main(int argc, char **argv) {
 	}
 
 
-	/* Common command line mistakes. */
+	/* Common command line mistake. */
 	if (st.argidx != argc)
 		custom_error("Useless argument %s", argv[st.argidx]);
 
 	goh_fini(&st);
 
+	/* Check for some invalid options combinations. */
 	if (action != ACTION_CRACK && key == NULL)
 		custom_error("Encryption and decryption take a --key");
 
 	if (action == ACTION_CRACK && key != NULL)
 		custom_error("--key need either --encrypt or --decrypt");
 
-	if (klen > 0 && key != NULL)
+	if (cka.klen > 0 && key != NULL)
 		custom_warn("Unnecessary key length option with an actual key");
 
-	if (klen > 0 && key != NULL && klen != strlen(key))
+	if (cka.klen > 0 && key != NULL && cka.klen != strlen(key))
 		custom_error("Key length option doesn't match "
 		             "the length of the key");
 
-	if (ka_minlen > 0 && action != ACTION_CRACK)
+	if (cka.ka_minlen > 0 && action != ACTION_CRACK)
 		custom_error("--kasiski-min-length can only be used in "
 		             "cracking mode");
 
-	if (ka_minlen > 0 && klen > 0)
+	if (cka.ka_minlen > 0 && cka.klen > 0)
 		custom_warn("Useless option --kasiski-min-length when the key "
 		            "length is given");
 
-	if (ka_show_table != 0 && action != ACTION_CRACK)
+	if (cka.ka_show_table != 0 && action != ACTION_CRACK)
 		custom_error("--show-kasiski-table can only be used in "
 		             "cracking mode");
 
-	if (ka_show_table != 0 && klen > 0)
+	if (cka.ka_show_table != 0 && cka.klen > 0)
 		custom_warn("Option --show-kasiski-table ignored when a key "
 		            "length is given");
 
@@ -286,9 +295,10 @@ int main(int argc, char **argv) {
 	/* Start to do the job. */
 	text = read_file(filenamein);
 	fs_init(&s, text, FS_CHARSET_ALPHA);
+	cka.str = &s;
 
 	if (action == ACTION_CRACK)
-		crack(&s, klen, ka_minlen, ka_show_table);
+		crack(&cka);
 	else
 		simple_action(&s, key, action);
 
