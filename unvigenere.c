@@ -48,6 +48,20 @@ static const struct goh_option opt_desc[] = {
 
 
 
+
+static void crack_ka_show_table(const struct cracker *ck) {
+	size_t i;
+	size_t nlen;
+
+	printf("Kasiski score table:\n");
+
+	nlen = strlen(ck->str->norm);
+	for (i = 0; i < nlen; i++)
+		printf("%lu: %lu\n", i, ck->ka.score[i]);
+}
+
+
+
 /* There are too much arguments for the crack function and more are coming.
  * Let's just put them all in a struct. */
 struct crack_args {
@@ -74,16 +88,8 @@ static void crack(const struct crack_args *a) {
 
 	ck_crack(&ck);
 
-	if (a->ka_show_table) {
-		size_t i;
-		size_t nlen;
-
-		printf("Kasiski score table:\n");
-
-		nlen = strlen(a->str->norm);
-		for (i = 0; i < nlen; i++)
-			printf("%lu: %lu\n", i, ck.ka.score[i]);
-	}
+	if (a->ka_show_table)
+		crack_ka_show_table(&ck);
 
 
 	printf("Found key: %s\n", ck.key);
