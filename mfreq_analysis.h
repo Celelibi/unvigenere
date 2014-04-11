@@ -12,14 +12,13 @@
 #include <sys/types.h>
 
 #include "array.h"
-#include "filtered_string.h"
 
 
 /* A type for the static 26 letters analysis. */
 typedef float freq_t[26];
 
 struct mfreq {
-	const struct fs_ctx *str;
+	const char *str;
 	size_t klen;
 
 	/* One table for every key letter. */
@@ -32,7 +31,7 @@ struct mfreq {
 
 
 /* Initialize a struct mfreq. */
-void mfa_init(struct mfreq *mfa, const struct fs_ctx *str, size_t klen);
+void mfa_init(struct mfreq *mfa, const char *str, size_t klen);
 
 /* Deinitialize a struct mfreq. */
 void mfa_fini(struct mfreq *mfa);

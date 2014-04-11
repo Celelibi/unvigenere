@@ -27,7 +27,7 @@ static freq_t freq_en = {
 
 
 
-void mfa_init(struct mfreq *mfa, const struct fs_ctx *str, size_t klen) {
+void mfa_init(struct mfreq *mfa, const char *str, size_t klen) {
 	memset(mfa, 0, sizeof(*mfa));
 
 	mfa->str = str;
@@ -58,16 +58,14 @@ static void frequency_offset(struct mfreq *mfa, size_t off) {
 	size_t count[26];
 	size_t i;
 	size_t total;
-	const char *norm;
 	size_t nlen;
 	char c;
 
 	memset(&count, 0, sizeof(count));
-	norm = mfa->str->norm;
-	nlen = strlen(norm);
+	nlen = strlen(mfa->str);
 
 	for (i = off; i < nlen; i += mfa->klen) {
-		c = toupper(norm[i]);
+		c = toupper(mfa->str[i]);
 
 		if (c >= 'A' && c <= 'Z')
 			count[c - 'A']++;
