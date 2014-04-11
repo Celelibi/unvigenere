@@ -67,7 +67,7 @@ void ck_length(struct cracker *state) {
 	if (state->ka_done)
 		ka_fini(&state->ka);
 
-	ka_init(&state->ka, state->str, state->ka_minlen);
+	ka_init(&state->ka, state->str->norm, state->ka_minlen);
 	ka_analyze(&state->ka);
 
 	bestlength = 2;

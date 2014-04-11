@@ -11,13 +11,12 @@
 
 #include <sys/types.h>
 
-#include "filtered_string.h"
-
 
 
 
 struct kasiski {
-	const struct fs_ctx *str;
+	const char *str;
+	size_t str_len;
 	size_t minlen;
 
 	/* ka_analyze will fill this array so that score[klen] is the number of
@@ -29,7 +28,7 @@ struct kasiski {
 
 /* Initialize a kasiski structure. minlen is the minimal length of the
  * substrings to match. */
-void ka_init(struct kasiski *k, const struct fs_ctx *str, size_t minlen);
+void ka_init(struct kasiski *k, const char *str, size_t minlen);
 
 /* Deinitialize a kasiski structure. */
 void ka_fini(struct kasiski *k);

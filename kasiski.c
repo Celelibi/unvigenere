@@ -3,21 +3,21 @@
 #include <sys/types.h>
 
 #include "misc.h"
-#include "filtered_string.h"
 #include "kasiski.h"
 
 
 
-void ka_init(struct kasiski *k, const struct fs_ctx *str, size_t minlen) {
+void ka_init(struct kasiski *k, const char *str, size_t minlen) {
 	memset(k, 0, sizeof(*k));
 	k->str = str;
+	k->str_len = strlen(str);
 	k->minlen = minlen;
 
-	k->score = malloc(strlen(k->str->norm) * sizeof(*k->score));
+	k->score = malloc(k->str_len * sizeof(*k->score));
 	if (k->score == NULL)
 		system_error("malloc");
 
-	memset(k->score, 0, strlen(k->str->norm) * sizeof(*k->score));
+	memset(k->score, 0, k->str_len * sizeof(*k->score));
 }
 
 
@@ -34,14 +34,11 @@ void ka_fini(struct kasiski *k) {
 static size_t analyze_offset_count(struct kasiski *k, size_t off) {
 	size_t count = 0;
 	ssize_t match_start = -1;
-	const char *norm;
 	size_t i;
 
-	norm = k->str->norm;
-
-	for (i = off; norm[i] != '\0'; i++) {
-		char c1 = norm[i];
-		char c2 = norm[i - off];
+	for (i = off; k->str[i] != '\0'; i++) {
+		char c1 = k->str[i];
+		char c2 = k->str[i - off];
 
 		/* Were in a substring match and it just ended. */
 		if (match_start != -1 && c1 != c2) {
@@ -80,10 +77,8 @@ static void analyze_offset(struct kasiski *k, size_t off) {
 
 
 void ka_analyze(struct kasiski *k) {
-	size_t nlen, i;
+	size_t i;
 
-	nlen = strlen(k->str->norm);
-
-	for (i = k->minlen; i < nlen; i++)
+	for (i = k->minlen; i < k->str_len; i++)
 		analyze_offset(k, i);
 }
