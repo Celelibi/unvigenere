@@ -30,9 +30,16 @@ void cs_fini(struct charset *cs) {
 
 /* Add a list of chars to the charset. */
 void cs_add(struct charset *cs, const char *str) {
-	char *cpy = strdup(str);
+	char *cpy;
+	size_t len;
 
-	if (cs->chars_size > 0 && strlen(str) != strlen(cs->chars[0]))
+	len = strlen(str);
+	cpy = strdup(str);
+
+	if (cs->chars_size == 0)
+		cs->length = len;
+
+	if (len != cs->length)
 		custom_error("cs_add: "
 		             "All the charsets must have the same length");
 
@@ -97,18 +104,11 @@ int cs_equiv(const struct charset *cs, char c1, char c2) {
  * not belong to the charset. */
 char cs_norm(const struct charset *cs, char c) {
 	size_t pos;
-	size_t i;
 
 	if (!find_char(cs, c, NULL, &pos))
 		return c;
 
-	for (i = 0; i < cs->chars_size; i++) {
-		if (strlen(cs->chars[i]) > pos)
-			return cs->chars[i][pos];
-	}
-
-	/* Shouldn't happen. */
-	return c;
+	return cs->chars[0][pos];
 }
 
 

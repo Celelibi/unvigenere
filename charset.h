@@ -7,6 +7,7 @@
  * ones. For instance adding "abcd" then "ABC" say that 'a' is equivalent to 'A'
  * and so on. And 'd' do not has an equivalent character. */
 
+#include <sys/types.h>
 
 #include "array.h"
 
@@ -23,6 +24,7 @@
 
 struct charset {
 	ARRAY_DECL(char *, chars);
+	size_t length;
 };
 
 
