@@ -3,6 +3,7 @@
 #include <sys/types.h>
 
 #include "misc.h"
+#include "charset.h"
 #include "filtered_string.h"
 
 
@@ -11,7 +12,7 @@
  * character lookup is faster.
  */
 
-void fs_init(struct fs_ctx *ctx, char *str, const char *charset) {
+void fs_init(struct fs_ctx *ctx, char *str, const struct charset *charset) {
 	size_t nlen = 0;
 	ssize_t i;
 
@@ -45,10 +46,10 @@ void fs_fini(struct fs_ctx *ctx) {
 ssize_t fs_pidx(const struct fs_ctx *ctx, size_t n) {
 	const char *p;
 
-	p = strpbrk(ctx->str, ctx->charset);
+	p = cs_strpbrk(ctx->charset, ctx->str);
 
 	while (n > 0 && p != NULL) {
-		p = strpbrk(p + 1, ctx->charset);
+		p = cs_strpbrk(ctx->charset, p + 1);
 		n--;
 	}
 
@@ -66,7 +67,7 @@ ssize_t fs_next(const struct fs_ctx *ctx, size_t n) {
 	if (n >= ctx->len)
 		return -1;
 
-	p = strpbrk(ctx->str + n + 1, ctx->charset);
+	p = cs_strpbrk(ctx->charset, ctx->str + n + 1);
 
 	if (p == NULL)
 		return -1;

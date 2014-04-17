@@ -6,6 +6,7 @@
 #include "cracker.h"
 #include "filtered_string.h"
 #include "vigenere.h"
+#include "charset.h"
 #include "array.h"
 #include "misc.h"
 
@@ -278,8 +279,10 @@ int main(int argc, char **argv) {
 	const char *filenamein = "-";
 	const char *filenameout = "-";
 	char *text = NULL;
+	struct charset cs;
 	struct crack_args cka;
 
+	cs_init(&cs);
 	memset(&cka, 0, sizeof(cka));
 
 	/* Parse the options. */
@@ -375,10 +378,16 @@ int main(int argc, char **argv) {
 		custom_warn("Option --show-kasiski-length ignored when a key "
 		            "length is given");
 
+	/* Default charset. */
+	if (cs.chars_size == 0) {
+		cs_add(&cs, CHARSET_UPPER);
+		cs_add(&cs, CHARSET_LOWER);
+	}
+
 
 	/* Start to do the job. */
 	text = read_file(filenamein);
-	fs_init(&s, text, FS_CHARSET_ALPHA);
+	fs_init(&s, text, &cs);
 	cka.str = &s;
 
 	if (action == ACTION_CRACK)
@@ -390,6 +399,7 @@ int main(int argc, char **argv) {
 
 	fs_fini(&s);
 	free(text);
+	cs_fini(&cs);
 
 
 	return EXIT_SUCCESS;

@@ -3,15 +3,13 @@
 
 #include <sys/types.h>
 
-#define FS_CHARSET_LOWER "abcdefghijklmnopqrstuvwxyz"
-#define FS_CHARSET_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-#define FS_CHARSET_ALPHA FS_CHARSET_LOWER FS_CHARSET_UPPER
+#include "charset.h"
 
 
 
 struct fs_ctx {
 	char *str;
-	const char *charset;
+	const struct charset *charset;
 	size_t len;
 	char *norm;
 };
@@ -19,7 +17,7 @@ struct fs_ctx {
 
 
 /* initialize ctx with the given information */
-void fs_init(struct fs_ctx *ctx, char *str, const char *charset);
+void fs_init(struct fs_ctx *ctx, char *str, const struct charset *charset);
 
 void fs_fini(struct fs_ctx *ctx);
 
