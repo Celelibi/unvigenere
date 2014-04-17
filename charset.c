@@ -31,6 +31,11 @@ void cs_fini(struct charset *cs) {
 /* Add a list of chars to the charset. */
 void cs_add(struct charset *cs, const char *str) {
 	char *cpy = strdup(str);
+
+	if (cs->chars_size > 0 && strlen(str) != strlen(cs->chars[0]))
+		custom_error("cs_add: "
+		             "All the charsets must have the same length");
+
 	ARRAY_APPEND(cs->chars, cpy);
 }
 
