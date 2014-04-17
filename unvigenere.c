@@ -46,7 +46,12 @@ static const struct goh_option opt_desc[] = {
 	{"show-kasiski-table", '\0', GOH_ARG_REFUSED, OPT_SHOW_KASISKI_TABLE,
 		"Show the score table for the kasiski method."},
 	{"show-kasiski-length", '\0', GOH_ARG_REFUSED, OPT_SHOW_KASISKI_LENGTH,
-		"Show the probable key length with respect to kasiski method."}
+		"Show the probable key length with respect to kasiski method."},
+	{"charset", 'c', GOH_ARG_REQUIRED, 'c',
+		"Characters to be transformed. Use several --charset options "
+		"to make several characters equivalent. "
+		"Default is upper and lower alphabetic characters, "
+		"uppercase being equivalent to lowercase."}
 };
 
 
@@ -325,6 +330,10 @@ int main(int argc, char **argv) {
 
 		case OPT_SHOW_KASISKI_LENGTH:
 			cka.ka_show_length = 1;
+			break;
+
+		case 'c':
+			cs_add(&cs, st.argval);
 			break;
 
 		default:
