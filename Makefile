@@ -10,8 +10,8 @@ LDFLAGS +=
 
 
 DEPDIR=.deps
-SRC=unvigenere.c misc.c array.c getopthelp.c filtered_string.c vigenere.c \
-    mfreq_analysis.c kasiski.c cracker.c
+SRC=unvigenere.c misc.c array.c getopthelp.c charset.c filtered_string.c \
+	vigenere.c mfreq_analysis.c kasiski.c cracker.c
 OBJS=$(subst .c,.o,$(SRC))
 DEPS=$(patsubst %.c,$(DEPDIR)/%.d,$(SRC))
 BIN=unvigenere
