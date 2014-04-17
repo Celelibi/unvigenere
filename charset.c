@@ -75,15 +75,15 @@ int cs_belong(const struct charset *cs, char c) {
 
 /* Ask whether two characters are equivalents. */
 int cs_equiv(const struct charset *cs, char c1, char c2) {
-	size_t c1_str, c1_pos;
-	size_t c2_str, c2_pos;
+	size_t c1_pos;
+	size_t c2_pos;
 
 	/* If you can't even find c1, it's not equivalent to c2! */
-	if (!find_char(cs, c1, &c1_str, &c1_pos))
+	if (!find_char(cs, c1, NULL, &c1_pos))
 		return 0;
 
 	/* If you can't even find c2, it's not equivalent to c1! */
-	if (!find_char(cs, c2, &c2_str, &c2_pos))
+	if (!find_char(cs, c2, NULL, &c2_pos))
 		return 0;
 
 	/* They're equivalent only if they are at the same position. */
