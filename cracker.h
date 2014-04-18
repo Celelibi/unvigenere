@@ -28,8 +28,6 @@
 
 struct cracker {
 	const struct fs_ctx *str;
-	const char *keycharset;
-	size_t keycharset_len;
 	size_t klen;
 	char *key;
 
@@ -46,10 +44,8 @@ struct cracker {
 
 
 /*
- * Initialize a struct cracker. keycharset is the charset from which to build
- * the key.
- */
-void ck_init(struct cracker *state, struct fs_ctx *str, const char *keycharset);
+ * Initialize a struct cracker. */
+void ck_init(struct cracker *state, struct fs_ctx *str);
 
 /* Free everything one of the ck_* function allocated. */
 void ck_fini(struct cracker *state);

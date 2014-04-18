@@ -145,7 +145,7 @@ static void crack(const struct crack_args *a) {
 	struct cracker ck;
 
 
-	ck_init(&ck, a->str, CHARSET_UPPER);
+	ck_init(&ck, a->str);
 
 	if (a->klen != 0)
 		ck_set_length(&ck, a->klen);

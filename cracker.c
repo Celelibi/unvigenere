@@ -12,12 +12,10 @@
 
 
 /* Initialize a struct cracker. */
-void ck_init(struct cracker *state, struct fs_ctx *str, const char *keycharset) {
+void ck_init(struct cracker *state, struct fs_ctx *str) {
 	memset(state, 0, sizeof(*state));
 	state->str = str;
 
-	state->keycharset = keycharset;
-	state->keycharset_len = strlen(state->keycharset);
 	state->ka_minlen = 3;
 }
 
@@ -89,13 +87,16 @@ void ck_length(struct cracker *state) {
 
 static void key_from_mfa_shift(struct cracker *state) {
 	size_t i;
+	const struct charset *cs;
 
 	assert(state->mfa_done);
 
+	cs = state->str->charset;
+
 	for (i = 0; i < state->klen; i++) {
 		/* Substract because we're undoing a Vigenère. */
-		size_t j = state->keycharset_len - state->mfa.shift[i];
-		state->key[i] = state->keycharset[j % state->keycharset_len];
+		size_t j = cs->length - state->mfa.shift[i];
+		state->key[i] = cs_chr(cs, j % cs->length);
 	}
 }
 
