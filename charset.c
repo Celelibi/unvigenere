@@ -76,6 +76,21 @@ int cs_find_char(const struct charset *cs, char c,
 
 
 
+/*
+ * Return the number of the character in the charset. Equivalent to ord() in
+ * most languages.
+ * Return -1 if the character is not found.
+ */
+int cs_ord(const struct charset *cs, char c) {
+	size_t pos;
+	if (!cs_find_char(cs, c, NULL, &pos))
+		return -1;
+
+	return pos;
+}
+
+
+
 /* Ask whether a character belong to the charset. Return 1 if yes, 0 if no. */
 int cs_belong(const struct charset *cs, char c) {
 	return cs_find_char(cs, c, NULL, NULL);
