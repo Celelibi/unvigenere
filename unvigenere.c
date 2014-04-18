@@ -143,10 +143,9 @@ struct crack_args {
 
 static void crack(const struct crack_args *a) {
 	struct cracker ck;
-	struct vigenere vig;
 
 
-	ck_init(&ck, a->str, VIG_CHARSET_UPPER);
+	ck_init(&ck, a->str, CHARSET_UPPER);
 
 	if (a->klen != 0)
 		ck_set_length(&ck, a->klen);
@@ -166,11 +165,7 @@ static void crack(const struct crack_args *a) {
 
 	printf("Found key: %s\n", ck.key);
 
-	vig_init(&vig, a->str);
-	vig_add_charset(&vig, VIG_CHARSET_UPPER);
-	vig_add_charset(&vig, VIG_CHARSET_LOWER);
-	vig_decrypt(&vig, ck.key);
-	vig_fini(&vig);
+	vig_decrypt(a->str, ck.key);
 
 	ck_fini(&ck);
 }
@@ -178,20 +173,12 @@ static void crack(const struct crack_args *a) {
 
 
 static void simple_action(struct fs_ctx *s, const char *key, enum action act) {
-	struct vigenere vig;
-
-	vig_init(&vig, s);
-	vig_add_charset(&vig, VIG_CHARSET_UPPER);
-	vig_add_charset(&vig, VIG_CHARSET_LOWER);
-
 	if (act == ACTION_ENCRYPT)
-		vig_encrypt(&vig, key);
+		vig_encrypt(s, key);
 	else if (act == ACTION_DECRYPT)
-		vig_decrypt(&vig, key);
+		vig_decrypt(s, key);
 	else
 		custom_error("Dafuq? simple_action called with an unknown action");
-
-	vig_fini(&vig);
 }
 
 
