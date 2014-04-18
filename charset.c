@@ -48,10 +48,11 @@ void cs_add(struct charset *cs, const char *str) {
 
 
 
-/* This is just function that does the work of cs_belong, and a part of the work
- * of cs_equiv and cs_norm all at the same time. */
-static int find_char(const struct charset *cs, char c,
-                      size_t *stridx, size_t *pos) {
+/* Set stridx and pos to be the string index and the position of a character
+ * into the charset.
+ * Return 1 if the character is found, 0 otherwise. */
+int cs_find_char(const struct charset *cs, char c,
+                 size_t *stridx, size_t *pos) {
 	size_t i;
 
 	for (i = 0; i < cs->chars_size; i++) {
@@ -75,7 +76,7 @@ static int find_char(const struct charset *cs, char c,
 
 /* Ask whether a character belong to the charset. Return 1 if yes, 0 if no. */
 int cs_belong(const struct charset *cs, char c) {
-	return find_char(cs, c, NULL, NULL);
+	return cs_find_char(cs, c, NULL, NULL);
 }
 
 
@@ -86,11 +87,11 @@ int cs_equiv(const struct charset *cs, char c1, char c2) {
 	size_t c2_pos;
 
 	/* If you can't even find c1, it's not equivalent to c2! */
-	if (!find_char(cs, c1, NULL, &c1_pos))
+	if (!cs_find_char(cs, c1, NULL, &c1_pos))
 		return 0;
 
 	/* If you can't even find c2, it's not equivalent to c1! */
-	if (!find_char(cs, c2, NULL, &c2_pos))
+	if (!cs_find_char(cs, c2, NULL, &c2_pos))
 		return 0;
 
 	/* They're equivalent only if they are at the same position. */
@@ -105,7 +106,7 @@ int cs_equiv(const struct charset *cs, char c1, char c2) {
 char cs_norm(const struct charset *cs, char c) {
 	size_t pos;
 
-	if (!find_char(cs, c, NULL, &pos))
+	if (!cs_find_char(cs, c, NULL, &pos))
 		return c;
 
 	return cs->chars[0][pos];

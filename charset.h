@@ -38,6 +38,11 @@ void cs_fini(struct charset *cs);
 /* Add a list of chars to the charset. */
 void cs_add(struct charset *cs, const char *str);
 
+/* Set stridx and pos to be the string index and the position of a character
+ * into the charset.
+ * Return 1 if the character is found, 0 otherwise. */
+int cs_find_char(const struct charset *cs, char c, size_t *stridx, size_t *pos);
+
 /* Ask whether a character belong to the charset. Return 1 if yes, 0 if no. */
 int cs_belong(const struct charset *cs, char c);
 
