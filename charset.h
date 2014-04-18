@@ -52,6 +52,13 @@ int cs_find_char(const struct charset *cs, char c, size_t *stridx, size_t *pos);
  */
 int cs_ord(const struct charset *cs, char c);
 
+/*
+ * Return one of the characters at the given position. Equivalent to chr() in
+ * most languages.
+ * Return '\0' if the position does not exists.
+ */
+char cs_chr(const struct charset *cs, size_t pos);
+
 /* Ask whether a character belong to the charset. Return 1 if yes, 0 if no. */
 int cs_belong(const struct charset *cs, char c);
 
