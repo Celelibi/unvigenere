@@ -18,22 +18,13 @@ static char shift_char(struct fs_ctx *str, char c, int s) {
 	if (!cs_find_char(cs, c, &sidx, &pos))
 		return -1;
 
+	/* This double trick allow to ensure that s is always positive and less
+	 * than cs->length. Even if s greatly negative. */
+	s %= (int)cs->length;
+	s = (s + cs->length) % cs->length;
+
 	pos = (pos + s) % cs->length;
-	return cs->chars[sidx][pos];
-}
 
-
-
-static char unshift_char(struct fs_ctx *str, char c, int s) {
-	size_t sidx, pos;
-	const struct charset *cs; /* shorthand */
-
-	cs = str->charset;
-
-	if (!cs_find_char(cs, c, &sidx, &pos))
-		return -1;
-
-	pos = (pos - s + cs->length) % cs->length;
 	return cs->chars[sidx][pos];
 }
 
@@ -85,7 +76,7 @@ void vig_decrypt(struct fs_ctx *str, const char *key) {
 	i = 0;
 	while (ntext[i] != '\0') {
 		int shift = cs_ord(str->charset, key[i % klen]);
-		ntext[i] = unshift_char(str, ntext[i], shift);
+		ntext[i] = shift_char(str, ntext[i], -shift);
 		i++;
 	}
 
