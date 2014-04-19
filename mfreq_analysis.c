@@ -124,7 +124,7 @@ void mfa_analyze(struct mfreq *mfa) {
 	size_t i;
 
 	memset(mfa->freq, 0, sizeof(*mfa->freq) * mfa->klen);
-	memset(mfa->freq, 0, sizeof(*mfa->shift) * mfa->klen);
+	memset(mfa->shift, 0, sizeof(*mfa->shift) * mfa->klen);
 
 	for (i = 0; i < mfa->klen; i++) {
 		frequency_offset(mfa, i);
