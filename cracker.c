@@ -111,7 +111,7 @@ void ck_freq(struct cracker *state) {
 	if (state->mfa_done)
 		mfa_fini(&state->mfa);
 
-	mfa_init(&state->mfa, state->str->norm, state->klen);
+	mfa_init(&state->mfa, state->str->norm, state->klen, state->str->charset, freq_en);
 	state->mfa_done = 1;
 
 	mfa_analyze(&state->mfa);

@@ -4,25 +4,30 @@
 
 /*
  * This module perform a multi frequency analysis on a given text.
- * It currently only support the 26 letters of the alphabet and doesn't take
- * care of the letter case.
  */
 
 
 #include <sys/types.h>
 
-#include "array.h"
+#include "charset.h"
 
 
-/* A type for the static 26 letters analysis. */
-typedef float freq_t[26];
+/* The frequencies for letters A..Z for several pre-defined languages. */
+extern float freq_en[];
+extern float freq_fr[];
+
+
+
 
 struct mfreq {
 	const char *str;
 	size_t klen;
 
+	const struct charset *charset;
+	const float *reffreq;
+
 	/* One table for every key letter. */
-	freq_t *freq;
+	float **freq;
 
 	/* Best shifts. */
 	size_t *shift;
@@ -31,7 +36,8 @@ struct mfreq {
 
 
 /* Initialize a struct mfreq. */
-void mfa_init(struct mfreq *mfa, const char *str, size_t klen);
+void mfa_init(struct mfreq *mfa, const char *str, size_t klen,
+              const struct charset *charset, const float *freq);
 
 /* Deinitialize a struct mfreq. */
 void mfa_fini(struct mfreq *mfa);
