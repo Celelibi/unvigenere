@@ -10,6 +10,7 @@
 #include <sys/types.h>
 
 #include "charset.h"
+#include "freq.h"
 
 
 /* The frequencies for letters A..Z for several pre-defined languages. */
@@ -27,7 +28,7 @@ struct mfreq {
 	const float *reffreq;
 
 	/* One table for every key letter. */
-	float **freq;
+	struct freq *freq;
 
 	/* Best shifts. */
 	size_t *shift;

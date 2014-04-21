@@ -4,6 +4,7 @@
 
 #include "misc.h"
 #include "charset.h"
+#include "freq.h"
 #include "mfreq_analysis.h"
 
 
@@ -44,11 +45,8 @@ void mfa_init(struct mfreq *mfa, const char *str, size_t klen,
 	if (mfa->freq == NULL)
 		system_error("malloc");
 
-	for (i = 0; i < klen; i++) {
-		mfa->freq[i] = malloc(sizeof(*mfa->freq[i]) * charset->length);
-		if (mfa->freq[i] == NULL)
-			system_error("malloc");
-	}
+	for (i = 0; i < klen; i++)
+		freq_init(&mfa->freq[i], charset);
 
 	mfa->shift = malloc(sizeof(*mfa->shift) * klen);
 	if (mfa->shift == NULL)
@@ -62,50 +60,11 @@ void mfa_fini(struct mfreq *mfa) {
 	free(mfa->shift);
 
 	for (i = 0; i < mfa->klen; i++)
-		free(mfa->freq[i]);
+		freq_fini(&mfa->freq[i]);
 
 	free(mfa->freq);
 
 	memset(mfa, 0, sizeof(*mfa));
-}
-
-
-
-/* Compute the frequency table for a given offset. */
-static void frequency_offset(struct mfreq *mfa, size_t off) {
-	/* Use size_t type to avoid float cancellation when doing "+1". */
-	size_t *count;
-	size_t i;
-	size_t total;
-	size_t nlen;
-	const struct charset *cs; /* shorthand */
-
-	cs = mfa->charset;
-	nlen = strlen(mfa->str);
-
-	count = malloc(sizeof(*count) * cs->length);
-	if (count == NULL)
-		system_error("malloc");
-
-	memset(count, 0, sizeof(*count) * cs->length);
-
-	for (i = off; i < nlen; i += mfa->klen) {
-		int o = cs_ord(cs, mfa->str[i]);
-
-		if (o == -1)
-			continue;
-
-		count[o]++;
-	}
-
-	total = 0;
-	for (i = 0; i < cs->length; i++)
-		total += count[i];
-
-	for (i = 0; i < cs->length; i++)
-		mfa->freq[off][i] = 100.0 * count[i] / (float)total;
-
-	free(count);
 }
 
 
@@ -121,7 +80,7 @@ static float freq_distance_shift(const struct mfreq *mfa, size_t off,
 
 	cs = mfa->charset;
 	lang_freq = mfa->reffreq;
-	freq = mfa->freq[off];
+	freq = mfa->freq[off].freq;
 
 	/* Just compute the euclidian distance. */
 	for (i = 0; i < cs->length; i++) {
@@ -159,13 +118,10 @@ static size_t best_shift(const struct mfreq *mfa, size_t n) {
 void mfa_analyze(struct mfreq *mfa) {
 	size_t i;
 
-	for (i = 0; i < mfa->klen; i++)
-		memset(mfa->freq[i], 0, sizeof(*mfa->freq) * mfa->klen);
-
 	memset(mfa->shift, 0, sizeof(*mfa->shift) * mfa->klen);
 
 	for (i = 0; i < mfa->klen; i++) {
-		frequency_offset(mfa, i);
+		freq_compute_stride(&mfa->freq[i], mfa->str + i, mfa->klen);
 		mfa->shift[i] = best_shift(mfa, i);
 	}
 }

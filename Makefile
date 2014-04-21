@@ -11,7 +11,7 @@ LDFLAGS +=
 
 DEPDIR=.deps
 SRC=unvigenere.c misc.c array.c getopthelp.c charset.c filtered_string.c \
-	vigenere.c mfreq_analysis.c kasiski.c cracker.c
+	vigenere.c freq.c mfreq_analysis.c kasiski.c cracker.c
 OBJS=$(subst .c,.o,$(SRC))
 DEPS=$(patsubst %.c,$(DEPDIR)/%.d,$(SRC))
 BIN=unvigenere
