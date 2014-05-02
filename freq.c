@@ -67,7 +67,7 @@ void freq_compute_stride(struct freq *f, const char *str, size_t n) {
 		total += count[i];
 
 	for (i = 0; i < cs->length; i++)
-		f->freq[i] = 100.0 * count[i] / (float)total;
+		f->freq[i] = count[i] / (float)total;
 
 	free(count);
 }
