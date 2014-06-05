@@ -27,7 +27,7 @@ float freq_fr[] = {
 
 
 void mfa_init(struct mfreq *mfa, const char *str, size_t klen,
-              const struct charset *charset, const float *freq) {
+              const struct charset *charset, const float *reffreq) {
 	size_t i;
 
 	memset(mfa, 0, sizeof(*mfa));
@@ -36,8 +36,8 @@ void mfa_init(struct mfreq *mfa, const char *str, size_t klen,
 	mfa->klen = klen;
 	mfa->charset = charset;
 
-	if (freq != NULL)
-		mfa->reffreq = freq;
+	if (reffreq != NULL)
+		mfa->reffreq = reffreq;
 	else
 		mfa->reffreq = freq_en;
 

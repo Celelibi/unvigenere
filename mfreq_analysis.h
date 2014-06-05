@@ -38,7 +38,7 @@ struct mfreq {
 
 /* Initialize a struct mfreq. */
 void mfa_init(struct mfreq *mfa, const char *str, size_t klen,
-              const struct charset *charset, const float *freq);
+              const struct charset *charset, const float *reffreq);
 
 /* Deinitialize a struct mfreq. */
 void mfa_fini(struct mfreq *mfa);
